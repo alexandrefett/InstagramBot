@@ -6,8 +6,7 @@ import com.fett.interceptor.ErrorInterceptor;
 import com.fett.model.User;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.*;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
@@ -25,10 +24,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.UnknownHostException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Component
@@ -36,6 +34,7 @@ public class InstagramService{
 
     private Firestore db;
     private Instagram instagram;
+    private Account account;
 
     @Autowired
     public InstagramService() {
@@ -70,6 +69,7 @@ public class InstagramService{
 
     public void login(String username, String password) throws IOException{
         instagram.login(username,password);
+        account = getAccountByUsername(username);
     }
 
     public Account getAccountById(long id) throws IOException {
@@ -143,4 +143,97 @@ public class InstagramService{
         ApiFuture<WriteResult> result = db.collection("requested").document(String.valueOf(b.getId())).set(map);
     }
 
+    public void addWhitelist(Account b){
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("id", b.getId());
+        map.put("username", b.getUsername());
+        map.put("fullName", b.getFullName());
+        map.put("followedByViewer", b.getFollowedByViewer());
+        map.put("requestedByViewer", b.getRequestedByViewer());
+        map.put("profilePictureUrl", b.getProfilePicUrl());
+        map.put("followsViewer", b.getFollowsViewer());
+        map.put("isVerified", b.getIsVerified());
+        map.put("date", Calendar.getInstance().getTimeInMillis()*-1);
+        ApiFuture<WriteResult> result = db
+                .collection("users")
+                .document(String.valueOf(account.getId()))
+                .collection("whitelist")
+                .document(String.valueOf(b.getId()))
+                .set(map);
+    }
+
+    public StandardResponse unfollow(){
+        new Thread() {
+            @Override
+            public void run() {
+                List<String> whitelist = new ArrayList<>();
+                try {
+                    int i = 0;
+                    List<Account> f = instagram.getFollows(Long.valueOf("3472751680"), 15).getNodes();
+                    while (f.size() > 500) {
+                        for (Account a : f) {
+                            if (!whitelist.contains(a.getUsername())) {
+                                i++;
+                                instagram.unfollowAccount(a.getId());
+                                System.out.println("userid:" + a.getId() +"    username:"+a.getUsername());
+                                sleep(3000);
+                            }
+                            if(i==15) {
+                                System.out.println("Paused for 15min");
+                                sleep(1000 * 60 * 15);
+                                i = 0;
+                            }
+                        }
+                        f = instagram.getFollows(Long.valueOf("3472751680"), 15).getNodes();
+                    }
+                } catch (UnknownHostException e) {
+                    try {
+                        System.out.println("UnkonowHostException");
+                        System.out.println("Paused for 1 min");
+                        sleep(1000 * 60);
+                        unfollow();
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+        return new StandardResponse(StatusResponse.SUCCESS, "Unfollow thread started");
+    }
+
+    public List<User> getWhitelist(){
+        List<User> list = new ArrayList<User>();
+        try{
+            CollectionReference docRef = db
+                    .collection("users")
+                    .document(String.valueOf(account.getId()))
+                    .collection("whitelist");
+            ApiFuture<QuerySnapshot> future = docRef.get();
+            QuerySnapshot document = future.get();
+            for (DocumentSnapshot doc:document) {
+                list.add(doc.toObject(User.class));
+            }
+        }
+        catch(InterruptedException e){
+            e.printStackTrace();
+        }
+        catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public void removeWhitelist(String id) {
+        ApiFuture<WriteResult> result = db
+                .collection("users")
+                .document(String.valueOf(account.getId()))
+                .collection("whitelist")
+                .document(id)
+                .delete();
+    }
 }
