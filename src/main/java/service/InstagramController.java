@@ -20,17 +20,17 @@ public class InstagramController {
     private InstagramService instagram;
 
 
-    @RequestMapping(API_CONTEXT+"/login")
-    public String _login(@RequestParam(value="username") String username, @RequestParam(value="password") String password) {
+    @RequestMapping(value = API_CONTEXT+"/login", method = RequestMethod.POST)
+    public StandardResponse _login(@RequestParam(value="username") String username, @RequestParam(value="password") String password) {
         try {
             instagram.basePage();
             instagram.login(username, password);
             instagram.basePage();
         } catch (IOException e) {
             e.printStackTrace();
-            return "NOT OK";
+            return new StandardResponse(StatusResponse.ERROR, e.getMessage());
         }
-        return "OK";
+        return new StandardResponse(StatusResponse.SUCCESS, "ok");
     }
 
     @RequestMapping(API_CONTEXT+"/account")
