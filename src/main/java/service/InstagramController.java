@@ -2,7 +2,7 @@ package service;
 
 import com.fett.Response.StandardResponse;
 import com.fett.Response.StatusResponse;
-import com.fett.model.User;
+import com.fett.model.Profile;
 import me.postaddict.instagram.scraper.model.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,6 @@ public class InstagramController {
 
     @Autowired
     private InstagramService instagram;
-
 
     @RequestMapping(value = API_CONTEXT+"/login", method = RequestMethod.POST)
     public StandardResponse _login(@RequestParam(value="username") String username, @RequestParam(value="password") String password) {
@@ -44,12 +43,18 @@ public class InstagramController {
         return account;
     }
 
-    @RequestMapping(value = API_CONTEXT+"/register", method = RequestMethod.POST)
-    public ResponseEntity<User> _postRegister(@RequestParam(value="user") User user) {
+    @RequestMapping(API_CONTEXT+"/profile")
+    public Profile _getProfile(@RequestParam(value="uid") String uid) {
+        Profile profile = instagram.getProfile(uid);
+        return profile;
+    }
+
+     @RequestMapping(value = API_CONTEXT+"/register", method = RequestMethod.POST)
+    public ResponseEntity<Profile> _postRegister(@RequestParam(value="user") Profile user) {
         if (user != null) {
             instagram.userRegister(user);
         }
-        return new ResponseEntity<User>(user, HttpStatus.OK);
+        return new ResponseEntity<Profile>(user, HttpStatus.OK);
     }
 
     @RequestMapping(API_CONTEXT+"/follow")
@@ -71,7 +76,7 @@ public class InstagramController {
     }
 
     @RequestMapping(API_CONTEXT+"/whitelist/list")
-    public List<User> _getWhitelist() {
+    public List<Profile> _getWhitelist() {
         return instagram.getWhitelist();
     }
 

@@ -1,7 +1,10 @@
 
 package com.fett.model;
 
-public class InstaUser {
+import java.util.HashMap;
+import java.util.Map;
+
+public class AccountMin {
     Boolean followedByViewer;
     Boolean followsViewer;
     String fullName;
@@ -12,7 +15,22 @@ public class InstaUser {
     String username;
     private long date;
 
-    public InstaUser(){
+    public AccountMin() {
+    }
+
+    public Map toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("followedByViewer", followedByViewer);
+        map.put("followsViewer", followsViewer);
+        map.put("fullName", fullName);
+        map.put("id", id);
+        map.put("isVerified", isVerified);
+        map.put("profilePictureUrl", profilePictureUrl);
+        map.put("requestedByViewer", requestedByViewer);
+        map.put("username", username);
+        map.put("long date", date);
+
+        return map;
     }
 
     public Boolean getFollowedByViewer() {

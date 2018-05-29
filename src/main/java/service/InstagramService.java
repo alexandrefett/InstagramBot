@@ -3,7 +3,7 @@ package service;
 import com.fett.Response.StandardResponse;
 import com.fett.Response.StatusResponse;
 import com.fett.interceptor.ErrorInterceptor;
-import com.fett.model.User;
+import com.fett.model.Profile;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.*;
@@ -124,8 +124,8 @@ public class InstagramService{
         return new StandardResponse(StatusResponse.SUCCESS, "Follow thread started");
 
     }
-    public User userRegister(User user){
-        ApiFuture<com.google.firestore.v1beta1.WriteResult> result = db.collection("profile").document(user.getUid()).set(user.toMap());
+    public Profile userRegister(Profile user){
+        ApiFuture<WriteResult> result = db.collection("profile").document(user.getUid()).set(user.toMap());
         return user;
     }
 
@@ -206,8 +206,8 @@ public class InstagramService{
         return new StandardResponse(StatusResponse.SUCCESS, "Unfollow thread started");
     }
 
-    public List<User> getWhitelist(){
-        List<User> list = new ArrayList<User>();
+    public List<Profile> getWhitelist(){
+        List<Profile> list = new ArrayList<Profile>();
         try{
             CollectionReference docRef = db
                     .collection("users")
@@ -216,7 +216,7 @@ public class InstagramService{
             ApiFuture<QuerySnapshot> future = docRef.get();
             QuerySnapshot document = future.get();
             for (DocumentSnapshot doc:document) {
-                list.add(doc.toObject(User.class));
+                list.add(doc.toObject(Profile.class));
             }
         }
         catch(InterruptedException e){
@@ -226,6 +226,24 @@ public class InstagramService{
             e.printStackTrace();
         }
         return list;
+    }
+
+    public Profile getProfile(String uid){
+        Profile profile = new Profile();
+        try{
+            DocumentReference docRef = db
+                    .collection("profile")
+                    .document(uid);
+            ApiFuture<DocumentSnapshot> future = docRef.get();
+            profile = future.get().toObject(Profile.class);
+        }
+        catch(InterruptedException e){
+            e.printStackTrace();
+        }
+        catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return profile;
     }
 
     public void removeWhitelist(String id) {
