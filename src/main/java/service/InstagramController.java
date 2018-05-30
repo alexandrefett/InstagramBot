@@ -2,18 +2,12 @@ package service;
 
 import com.fett.Response.StandardResponse;
 import com.fett.Response.StatusResponse;
-import com.fett.model.Profile;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
+import com.fett.model.User;
 import me.postaddict.instagram.scraper.model.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import javax.annotation.PostConstruct;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -25,36 +19,18 @@ public class InstagramController {
     @Autowired
     private InstagramService instagram;
 
-    @PostConstruct
-    public void init(){
-        FileInputStream serviceAccount = null;
-        try {
-            serviceAccount = new FileInputStream("instamanager-908a3-aab9f9f25fd5.json");
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setDatabaseUrl("https://instamanager-908a3.firebaseio.com")
-                .build();
-            FirebaseApp.initializeApp(options);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     @RequestMapping(value = API_CONTEXT+"/login", method = RequestMethod.POST)
-    public ResponseEntity<Account> _login(@RequestBody Profile user) {
-        Account account = null;
+    public StandardResponse _login(@RequestParam(value="username") String username, @RequestParam(value="password") String password) {
         try {
             instagram.basePage();
-            instagram.login(user.getUsername(), user.getPassword());
+            instagram.login(username, password);
             instagram.basePage();
-            account = instagram.getAccountByUsername(user.getUsername());
         } catch (IOException e) {
             e.printStackTrace();
+            return new StandardResponse(StatusResponse.ERROR, e.getMessage());
         }
-        return new ResponseEntity<Account>(account, HttpStatus.OK);
+        return new StandardResponse(StatusResponse.SUCCESS, "ok");
     }
 
     @RequestMapping(API_CONTEXT+"/account")
@@ -69,11 +45,11 @@ public class InstagramController {
     }
 
     @RequestMapping(value = API_CONTEXT+"/register", method = RequestMethod.POST)
-    public ResponseEntity<Profile> _postRegister(@RequestBody Profile user) {
+    public ResponseEntity<User> _postRegister(@RequestParam(value="user") User user) {
         if (user != null) {
             instagram.userRegister(user);
         }
-        return new ResponseEntity<Profile>(user, HttpStatus.OK);
+        return new ResponseEntity<User>(user, HttpStatus.OK);
     }
 
     @RequestMapping(API_CONTEXT+"/follow")
@@ -95,7 +71,7 @@ public class InstagramController {
     }
 
     @RequestMapping(API_CONTEXT+"/whitelist/list")
-    public List<Account> _getWhitelist() {
+    public List<User> _getWhitelist() {
         return instagram.getWhitelist();
     }
 

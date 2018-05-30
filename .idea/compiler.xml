@@ -9,5 +9,8 @@
         <module name="InstagramBot" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="InstagramBot" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>
