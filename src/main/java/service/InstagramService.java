@@ -3,7 +3,7 @@ package service;
 import com.fett.Response.StandardResponse;
 import com.fett.Response.StatusResponse;
 import com.fett.interceptor.ErrorInterceptor;
-import com.fett.model.User;
+import com.fett.model.Profile;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.*;
@@ -39,28 +39,17 @@ public class InstagramService{
     @Autowired
     public InstagramService() {
 
-        try {
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-            OkHttpClient httpClient = new OkHttpClient.Builder()
-                    .addNetworkInterceptor(loggingInterceptor)
-                    .addInterceptor(new UserAgentInterceptor(UserAgents.WIN10_CHROME))
-                    .addInterceptor(new ErrorInterceptor())
-                    .cookieJar(new DefaultCookieJar(new CookieHashSet()))
-                    .build();
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient httpClient = new OkHttpClient.Builder()
+                .addNetworkInterceptor(loggingInterceptor)
+                .addInterceptor(new UserAgentInterceptor(UserAgents.WIN10_CHROME))
+                .addInterceptor(new ErrorInterceptor())
+                .cookieJar(new DefaultCookieJar(new CookieHashSet()))
+                .build();
 
-            FileInputStream serviceAccount = new FileInputStream("instamanager-908a3-aab9f9f25fd5.json");
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setDatabaseUrl("https://instamanager-908a3.firebaseio.com")
-                    .build();
-            FirebaseApp.initializeApp(options);
-            this.db = FirestoreClient.getFirestore();
-            this.instagram = new Instagram(httpClient);
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        }
+        this.db = FirestoreClient.getFirestore();
+        this.instagram = new Instagram(httpClient);
     }
 
     public void basePage() throws IOException{
@@ -124,7 +113,7 @@ public class InstagramService{
         return new StandardResponse(StatusResponse.SUCCESS, "Follow thread started");
 
     }
-    public User userRegister(User user){
+    public Profile userRegister(Profile user){
         ApiFuture<com.google.firestore.v1beta1.WriteResult> result = db.collection("profile").document(user.getUid()).set(user.toMap());
         return user;
     }
@@ -166,7 +155,7 @@ public class InstagramService{
         new Thread() {
             @Override
             public void run() {
-                List<String> whitelist = new ArrayList<>();
+                List<String> whitelist = new ArrayList<String>();
                 try {
                     int i = 0;
                     List<Account> f = instagram.getFollows(Long.valueOf("3472751680"), 15).getNodes();
@@ -206,8 +195,8 @@ public class InstagramService{
         return new StandardResponse(StatusResponse.SUCCESS, "Unfollow thread started");
     }
 
-    public List<User> getWhitelist(){
-        List<User> list = new ArrayList<User>();
+    public List<Account> getWhitelist(){
+        List<Account> list = new ArrayList<Account>();
         try{
             CollectionReference docRef = db
                     .collection("users")
@@ -216,7 +205,7 @@ public class InstagramService{
             ApiFuture<QuerySnapshot> future = docRef.get();
             QuerySnapshot document = future.get();
             for (DocumentSnapshot doc:document) {
-                list.add(doc.toObject(User.class));
+                list.add(doc.toObject(Account.class));
             }
         }
         catch(InterruptedException e){
