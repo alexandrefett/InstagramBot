@@ -7,10 +7,6 @@ public class Profile {
     private String uid;
     private String username;
     private String password;
-<<<<<<< HEAD
-=======
-    private Plan plan;
->>>>>>> origin/master
 
     public Profile() {
     }
@@ -19,25 +15,10 @@ public class Profile {
         return uid;
     }
 
-<<<<<<< HEAD
     public void setUid(String id) {
         this.uid = uid;
     }
 
-=======
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public Plan getPlan() {
-        return plan;
-    }
-
-    public void setPlan(Plan plan) {
-        this.plan = plan;
-    }
-
->>>>>>> origin/master
     public String getUsername() {
         return username;
     }
@@ -55,18 +36,10 @@ public class Profile {
     }
 
     public Map toMap(){
-<<<<<<< HEAD
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("uid", uid);
         map.put("username", username);
         map.put("password", password);
-=======
-        Map<String, Object> map = new HashMap<>();
-        map.put("uid", uid);
-        map.put("username", username);
-        map.put("password", password);
-        map.put("plan", plan);
->>>>>>> origin/master
 
         return map;
     }
