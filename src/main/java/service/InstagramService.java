@@ -4,6 +4,7 @@ import com.fett.Response.StandardResponse;
 import com.fett.Response.StatusResponse;
 import com.fett.interceptor.ErrorInterceptor;
 import com.fett.model.Profile;
+import com.fett.model.Search;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.*;
@@ -116,6 +117,16 @@ public class InstagramService{
     public Profile userRegister(Profile user){
         ApiFuture<com.google.firestore.v1beta1.WriteResult> result = db.collection("profile").document(user.getUid()).set(user.toMap());
         return user;
+    }
+
+    public Search serach(String query){
+        Search result = null;
+        try {
+            result = instagram.getSearchUserByUsername(query);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public void addRequested(Account b){

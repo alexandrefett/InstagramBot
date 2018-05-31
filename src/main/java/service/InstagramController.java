@@ -3,6 +3,7 @@ package service;
 import com.fett.Response.StandardResponse;
 import com.fett.Response.StatusResponse;
 import com.fett.model.Profile;
+import com.fett.model.Search;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -68,6 +69,12 @@ public class InstagramController {
         }
         return account;
     }
+
+    @RequestMapping(API_CONTEXT+"/search")
+    public Search _getsearch(@RequestParam(value="query") String query) {
+        return instagram.serach(query);
+    }
+
 
     @RequestMapping(value = API_CONTEXT+"/register", method = RequestMethod.POST)
     public ResponseEntity<Profile> _postRegister(@RequestBody Profile user) {
