@@ -265,6 +265,20 @@ public class Instagram implements AuthenticatedInsta {
         return getFollowsRequest.requestInstagramResult(new UserParameter(userId), pageCount, FIRST_PAGE);
     }
 
+    public String getFollows(long userId, PageInfo pageInfo) throws IOException {
+        Request request = new Request.Builder()
+                .url(me.postaddict.instagram.scraper.Endpoint.getFollowsLinkVariables(userId, 50, pageInfo.getEndCursor()))
+                .header(me.postaddict.instagram.scraper.Endpoint.REFERER, me.postaddict.instagram.scraper.Endpoint.BASE_URL + "/")
+                .build();
+
+        Response response = executeHttpRequest(request);
+        //InputStream jsonStream = response.body().byteStream();
+        String jsonStream = response.body().string();
+        System.out.println("-----------------");
+
+        return jsonStream;
+    }
+
     public PageObject<Account> getFollowers(long userId, int pageCount) throws IOException {
         GetFollowersRequest getFollowersRequest = new GetFollowersRequest(httpClient, mapper, delayHandler);
         return getFollowersRequest.requestInstagramResult(new UserParameter(userId),pageCount, FIRST_PAGE);

@@ -77,8 +77,11 @@ public class InstagramController {
     }
 
     @RequestMapping(API_CONTEXT+"/follows")
-    public Search _getfollows(@RequestParam(value="query") String query) {
-        return instagram.serach(query);
+    public String _getfollows(
+            @RequestParam(value="id") long id,
+            @RequestParam(value="hasNext") boolean hasNext,
+            @RequestParam(value="cursor") String cursor) {
+               return instagram.getFollows(id, hasNext, cursor);
     }
 
     @RequestMapping(value = API_CONTEXT+"/register", method = RequestMethod.POST)

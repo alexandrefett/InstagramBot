@@ -4,27 +4,21 @@ import com.fett.Response.StandardResponse;
 import com.fett.Response.StatusResponse;
 import com.fett.interceptor.ErrorInterceptor;
 import com.fett.model.Profile;
-import com.fett.model.Search;
 import com.google.api.core.ApiFuture;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.*;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
-import com.google.gson.JsonElement;
 import me.postaddict.instagram.scraper.cookie.CookieHashSet;
 import me.postaddict.instagram.scraper.cookie.DefaultCookieJar;
 import me.postaddict.instagram.scraper.interceptor.UserAgentInterceptor;
 import me.postaddict.instagram.scraper.interceptor.UserAgents;
 import me.postaddict.instagram.scraper.model.Account;
+import me.postaddict.instagram.scraper.model.PageInfo;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.*;
@@ -60,11 +54,22 @@ public class InstagramService{
 
     public void login(String username, String password) throws IOException{
         instagram.login(username,password);
-        account = getAccountByUsername(username);
+        if(account==null)
+            account = getAccountByUsername(username);
     }
 
     public Account getAccountById(long id) throws IOException {
         return instagram.getAccountById(id);
+    }
+
+
+    public String getFollows(long id, boolean hasNext, String cursor){
+        try {
+            return instagram.getFollows(id, new PageInfo(hasNext,cursor));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "{\"status\":\"NOK\"}";
+        }
     }
 
     public Account getAccountByUsername(String username) throws IOException {
