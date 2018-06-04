@@ -7,6 +7,7 @@ import com.fett.model.Search;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.gson.JsonElement;
 import me.postaddict.instagram.scraper.model.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -71,7 +72,7 @@ public class InstagramController {
     }
 
     @RequestMapping(API_CONTEXT+"/search")
-    public Search _getsearch(@RequestParam(value="query") String query) {
+    public String _getsearch(@RequestParam(value="query") String query) {
         return instagram.serach(query);
     }
 

@@ -4,6 +4,7 @@ import com.fett.mapper.Mapper2;
 import com.fett.mapper.ModelMapper2;
 import com.fett.model.Search;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import me.postaddict.instagram.scraper.AuthenticatedInsta;
 import me.postaddict.instagram.scraper.MediaUtil;
 import me.postaddict.instagram.scraper.exception.InstagramAuthException;
@@ -140,7 +141,7 @@ public class Instagram implements AuthenticatedInsta {
         }
     }
 
-    public Search getSearchUserByUsername(String username) throws IOException {
+    public String getSearch(String username) throws IOException {
         Request request = new Request.Builder()
                 .url(Endpoint.getSearchUserByUsername(username))
                 .addHeader(Endpoint.REFERER, Endpoint.BASE_URL)
@@ -148,8 +149,8 @@ public class Instagram implements AuthenticatedInsta {
         Response response = executeHttpRequest(request);
         String jsonStream = response.body().string();
         Gson gson = new Gson();
-        Search s = gson.fromJson(jsonStream, Search.class);
-        return s;
+
+        return jsonStream;
     }
 
     public PageObject<Media> getMedias(String username, int pageCount) throws IOException {

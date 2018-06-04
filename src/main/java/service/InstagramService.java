@@ -11,6 +11,7 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
+import com.google.gson.JsonElement;
 import me.postaddict.instagram.scraper.cookie.CookieHashSet;
 import me.postaddict.instagram.scraper.cookie.DefaultCookieJar;
 import me.postaddict.instagram.scraper.interceptor.UserAgentInterceptor;
@@ -41,7 +42,7 @@ public class InstagramService{
     public InstagramService() {
 
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
         OkHttpClient httpClient = new OkHttpClient.Builder()
                 .addNetworkInterceptor(loggingInterceptor)
                 .addInterceptor(new UserAgentInterceptor(UserAgents.WIN10_CHROME))
@@ -119,10 +120,10 @@ public class InstagramService{
         return user;
     }
 
-    public Search serach(String query){
-        Search result = null;
+    public String serach(String query){
+        String result = null;
         try {
-            result = instagram.getSearchUserByUsername(query);
+            result = instagram.getSearch(query);
         } catch (IOException e) {
             e.printStackTrace();
         }
