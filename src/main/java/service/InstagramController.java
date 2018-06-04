@@ -3,17 +3,14 @@ package service;
 import com.fett.Response.StandardResponse;
 import com.fett.Response.StatusResponse;
 import com.fett.model.Profile;
-import com.fett.model.Search;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.gson.JsonElement;
 import me.postaddict.instagram.scraper.model.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
