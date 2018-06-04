@@ -31,6 +31,7 @@ public class Instagram implements AuthenticatedInsta {
     protected Mapper2 mapper;
     protected DelayHandler delayHandler;
     private String rhxgis;
+    private String queryhash;
 
     public Instagram(OkHttpClient httpClient) {
         this(httpClient, new ModelMapper2(), new DefaultDelayHandler());
@@ -68,11 +69,18 @@ public class Instagram implements AuthenticatedInsta {
     }
 
     private void getRhxGis(Response response) throws IOException {
-        Pattern p = Pattern.compile("\"rhx_gis\":\"([a-f0-9]{32})\"");
-        Matcher m = p.matcher(response.body().string());
-        if (m.find()) {
-            this.rhxgis =m.group(1);  // The matched substring
+        String body = response.body().string();
+        Pattern p1 = Pattern.compile("\"rhx_gis\":\"([a-f0-9]{32})\"");
+        Pattern p2 = Pattern.compile("query_hash=([a-f0-9]{32})");
+        Matcher m1 = p1.matcher(body);
+        if (m1.find()) {
+            this.rhxgis =m1.group(1);  // The matched substring
             System.out.println("rhxgis: "+this.rhxgis);
+        }
+        Matcher m2 = p2.matcher(body);
+        if (m2.find()) {
+            this.queryhash =m2.group(1);  // The matched substring
+            System.out.println("query_hash: "+this.queryhash);
         }
     }
 
@@ -267,8 +275,8 @@ public class Instagram implements AuthenticatedInsta {
 
     public String getFollows(long userId, PageInfo pageInfo) throws IOException {
         Request request = new Request.Builder()
-                .url(me.postaddict.instagram.scraper.Endpoint.getFollowsLinkVariables(userId, 50, pageInfo.getEndCursor()))
-                .header(me.postaddict.instagram.scraper.Endpoint.REFERER, me.postaddict.instagram.scraper.Endpoint.BASE_URL + "/")
+                .url(Endpoint.getFollowsLinkVariables(userId, 50, pageInfo.getEndCursor()))
+                .header(Endpoint.REFERER, Endpoint.BASE_URL + "/")
                 .build();
 
         Response response = executeHttpRequest(request);
