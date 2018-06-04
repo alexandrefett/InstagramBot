@@ -76,6 +76,10 @@ public class InstagramController {
         return instagram.serach(query);
     }
 
+    @RequestMapping(API_CONTEXT+"/follows")
+    public Search _getfollows(@RequestParam(value="query") String query) {
+        return instagram.serach(query);
+    }
 
     @RequestMapping(value = API_CONTEXT+"/register", method = RequestMethod.POST)
     public ResponseEntity<Profile> _postRegister(@RequestBody Profile user) {

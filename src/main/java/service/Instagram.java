@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
 
 public class Instagram implements AuthenticatedInsta {
 
-
     private static final PageInfo FIRST_PAGE = new PageInfo(true, "");
     protected OkHttpClient httpClient;
     protected Mapper2 mapper;
@@ -146,6 +145,7 @@ public class Instagram implements AuthenticatedInsta {
                 .url(Endpoint.getSearchUserByUsername(username))
                 .addHeader(Endpoint.REFERER, Endpoint.BASE_URL)
                 .build();
+
         Response response = executeHttpRequest(request);
         String jsonStream = response.body().string();
         Gson gson = new Gson();
