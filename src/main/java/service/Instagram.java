@@ -15,6 +15,10 @@ import me.postaddict.instagram.scraper.request.parameters.MediaCode;
 import me.postaddict.instagram.scraper.request.parameters.TagName;
 import me.postaddict.instagram.scraper.request.parameters.UserParameter;
 import okhttp3.*;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -24,6 +28,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Component
 public class Instagram implements AuthenticatedInsta {
 
     private static final PageInfo FIRST_PAGE = new PageInfo(true, "");

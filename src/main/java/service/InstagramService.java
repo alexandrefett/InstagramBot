@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import com.google.api.Service;
 
 @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Component
