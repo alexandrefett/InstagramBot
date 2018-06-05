@@ -44,18 +44,22 @@ public class Instagram implements AuthenticatedInsta {
         this.delayHandler = defaultDelayHandler;
     }
 
-    protected String getHashFollows(String body) throws IOException{
+    private void getHashFollows(String body) throws IOException{
         final String hash_follow = "Consumer.js/";
-        String jsbody = getJSBody(getJSFile(body, hash_follow));
-        Pattern p1 = Pattern.compile("s=([a-f0-9]{32})\",l=1");
-        Matcher m1 = p1.matcher(body);
-        if (m1.find()) {
-            return m1.group(1);  // The matched substring
+        String url = getJSFile(body, hash_follow);
+
+        if(url!=null) {
+            String jsbody = getJSBody(url);
+            Pattern p1 = Pattern.compile("s=\"([a-f0-9]{32})\",l=1");
+            Matcher m1 = p1.matcher(jsbody);
+            if (m1.find()) {
+                System.out.println("---------10");
+                this.queryhash =  m1.group(1);  // The matched substring
+            }
         }
-        return null;
     }
 
-    protected String getJSBody(String url) throws IOException{
+    private String getJSBody(String url) throws IOException{
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -63,14 +67,13 @@ public class Instagram implements AuthenticatedInsta {
         return response.body().string();
     }
 
-    protected String getJSFile(String body, String jsfile) throws IOException{
+    private String getJSFile(String body, String jsfile) throws IOException{
         String file = null;
-        Pattern p1 = Pattern.compile(jsfile+".js/([a-f0-9]{12})");
+        Pattern p1 = Pattern.compile(jsfile+"([a-f0-9]{12})");
         Matcher m1 = p1.matcher(body);
         if (m1.find()) {
             this.rhxgis =m1.group(1);  // The matched substring
             file = Endpoint.BASE_URL+Endpoint.BASE_STATIC+jsfile+m1.group(1)+".js";
-            System.out.println("file: "+file);
         }
         return file;
     }
@@ -94,21 +97,20 @@ public class Instagram implements AuthenticatedInsta {
                 .build();
 
         Response response = executeHttpRequest(request);
-        getRhxGis(response);
-        try (ResponseBody body = response.body()){
+        String body = response.body().string();
+        getRhxGis(body);
+//        try (ResponseBody body = response.body()){
             //release connection
-        }
+//        }
     }
 
-    private void getRhxGis(Response response) throws IOException {
-        String body = response.body().string();
+    private void getRhxGis(String body) throws IOException {
         Pattern p1 = Pattern.compile("\"rhx_gis\":\"([a-f0-9]{32})\"");
         Matcher m1 = p1.matcher(body);
         if (m1.find()) {
             this.rhxgis =m1.group(1);  // The matched substring
             System.out.println("rhxgis: "+this.rhxgis);
         }
-        this.queryhash = getHashFollows(body);
     }
 
     public void login(String username, String password) throws IOException {
@@ -301,15 +303,17 @@ public class Instagram implements AuthenticatedInsta {
     }
 
     public String getFollows(long userId, PageInfo pageInfo) throws IOException {
+
+        System.out.println("query_hash: "+this.queryhash);
+
         Request request = new Request.Builder()
-                .url(Endpoint.getFollowsLinkVariables(queryhash, userId, 50, pageInfo.getEndCursor()))
+                .url(Endpoint.getFollowsLinkVariables(this.queryhash, userId, 50, pageInfo.getEndCursor()))
                 .header(Endpoint.REFERER, Endpoint.BASE_URL + "/")
                 .build();
 
         Response response = executeHttpRequest(request);
         //InputStream jsonStream = response.body().byteStream();
         String jsonStream = response.body().string();
-        System.out.println("-----------------");
 
         return jsonStream;
     }

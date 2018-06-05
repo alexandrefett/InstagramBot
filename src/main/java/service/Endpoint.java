@@ -147,17 +147,20 @@ public class Endpoint {
                 .replace(USER_ID, String.valueOf(userId));
     }
 
-    public static String getFollowsLinkVariables(String hash, long userId, int count, String endCursor) {
+    public static String getFollowsLinkVariables(String qhash, long userId, int count, String endCursor) {
+        System.out.println(QUERY_HASH);
+        System.out.println(qhash);
+        System.out.println(FOLLOWS_URL);
         return FOLLOWS_URL
-                .replace(QUERY_HASH, hash)
+                .replace(QUERY_HASH, qhash)
                 .replace(USER_ID, String.valueOf(userId))
                 .replace(COUNT, String.valueOf(count))
                 .replace(END_CURSOR, endCursor);
     }
 
-    public static String getFollowersLinkVariables(String hash, long userId, int count, String endCursor) {
+    public static String getFollowersLinkVariables(String qhash, long userId, int count, String endCursor) {
         return FOLLOWERS_URL
-                .replace(QUERY_HASH, hash)
+                .replace(QUERY_HASH, qhash)
                 .replace(USER_ID, String.valueOf(userId))
                 .replace(COUNT, String.valueOf(count))
                 .replace(END_CURSOR, endCursor);
