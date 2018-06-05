@@ -22,8 +22,8 @@ public class Endpoint {
     public static final String MEDIA_COMMENTS_ADD = "https://www.instagram.com/web/comments/{{mediaId}}/add/";
     public static final String MEDIA_COMMENTS_DELETE = "https://www.instagram.com/web/comments/{{mediaId}}/delete/{{commentId}}/";
     public static final String LIKES_BY_SHORTCODE = "https://www.instagram.com/graphql/query/?query_id=17864450716183058&variables={\"shortcode\":\"{{shortcode}}\",\"first\":{{count}},\"after\":\"{{after}}\"}";
-    public static final String FOLLOWS_URL = "https://www.instagram.com/graphql/query/?query_hash=37479f2b8209594dde7facb0d904896a&variables=%7B%22id%22%3A{{userId}}%2C%22first%22%3A{{count}}%2C%22after%22%3A%22{{endCursor}}%22%7D";
-    public static final String FOLLOWERS_URL = "https://www.instagram.com/graphql/query/?query_hash=37479f2b8209594dde7facb0d904896a&variables=%7B%22id%22%3A{{userId}}%2C%22first%22%3A{{count}}%2C%22after%22%3A%22{{endCursor}}%22%7D";
+    public static final String FOLLOWS_URL = "https://www.instagram.com/graphql/query/?query_hash={{queryhash}}&variables=%7B%22id%22%3A{{userId}}%2C%22first%22%3A{{count}}%2C%22after%22%3A%22{{endCursor}}%22%7D";
+    public static final String FOLLOWERS_URL = "https://www.instagram.com/graphql/query/?query_hash={{queryhash}}&variables=%7B%22id%22%3A{{userId}}%2C%22first%22%3A{{count}}%2C%22after%22%3A%22{{endCursor}}%22%7D";
     public static final String FOLLOW_ACCOUNT = "https://www.instagram.com/web/friendships/{{userId}}/follow/";
     public static final String UNFOLLOW_ACCOUNT = "https://www.instagram.com/web/friendships/{{userId}}/unfollow/";
     public static final String ACTIVITY_FEED = "https://www.instagram.com/accounts/activity/?__a=1";
@@ -42,6 +42,7 @@ public class Endpoint {
     public static final String END_CURSOR = "{{endCursor}}";
     public static final String TAG = "{{tag}}";
     public static final String QUERY = "{{query}}";
+    public static final String QUERY_HASH = "{{queryhash}}";
     public static final String FACEBOOK_LOCATION_ID = "{{facebookLocationId}}";
 
     public static String getAccountId(String username) {
@@ -145,15 +146,17 @@ public class Endpoint {
                 .replace(USER_ID, String.valueOf(userId));
     }
 
-    public static String getFollowsLinkVariables(long userId, int count, String endCursor) {
+    public static String getFollowsLinkVariables(String hash, long userId, int count, String endCursor) {
         return FOLLOWS_URL
+                .replace(QUERY_HASH, hash)
                 .replace(USER_ID, String.valueOf(userId))
                 .replace(COUNT, String.valueOf(count))
                 .replace(END_CURSOR, endCursor);
     }
 
-    public static String getFollowersLinkVariables(long userId, int count, String endCursor) {
+    public static String getFollowersLinkVariables(String hash, long userId, int count, String endCursor) {
         return FOLLOWERS_URL
+                .replace(QUERY_HASH, hash)
                 .replace(USER_ID, String.valueOf(userId))
                 .replace(COUNT, String.valueOf(count))
                 .replace(END_CURSOR, endCursor);

@@ -275,7 +275,7 @@ public class Instagram implements AuthenticatedInsta {
 
     public String getFollows(long userId, PageInfo pageInfo) throws IOException {
         Request request = new Request.Builder()
-                .url(Endpoint.getFollowsLinkVariables(userId, 50, pageInfo.getEndCursor()))
+                .url(Endpoint.getFollowsLinkVariables(queryhash, userId, 50, pageInfo.getEndCursor()))
                 .header(Endpoint.REFERER, Endpoint.BASE_URL + "/")
                 .build();
 

@@ -20,7 +20,7 @@ public class GetFollowersRequest extends PaginatedRequest<PageObject<Account>, U
     }
 
     protected Request requestInstagram(UserParameter requestParameters, PageInfo pageInfo) {
-        return (new Builder()).url(Endpoint.getFollowersLinkVariables(requestParameters.getUserId(), 50, pageInfo.getEndCursor())).header("Referer", "https://www.instagram.com/").build();
+        return (new Builder()).url(Endpoint.getFollowersLinkVariables("", requestParameters.getUserId(), 50, pageInfo.getEndCursor())).header("Referer", "https://www.instagram.com/").build();
     }
 
     protected void updateResult(PageObject<Account> result, PageObject<Account> current) {
