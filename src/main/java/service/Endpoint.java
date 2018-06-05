@@ -2,6 +2,7 @@ package service;
 
 
 public class Endpoint {
+    public static final String BASE_STATIC = "/static/bundles/base/";
     public static final String REFERER = "Referer";
     public static final String X_INSTAGRAM_GIS = "X-Instagram-gis";
     public static final String BASE_URL = "https://www.instagram.com";

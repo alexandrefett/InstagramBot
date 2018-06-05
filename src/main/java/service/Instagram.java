@@ -33,6 +33,7 @@ public class Instagram implements AuthenticatedInsta {
     private String rhxgis;
     private String queryhash;
 
+
     public Instagram(OkHttpClient httpClient) {
         this(httpClient, new ModelMapper2(), new DefaultDelayHandler());
     }
@@ -41,6 +42,36 @@ public class Instagram implements AuthenticatedInsta {
         this.httpClient = httpClient;
         this.mapper = modelMapper;
         this.delayHandler = defaultDelayHandler;
+    }
+
+    protected String getHashFollows(String body) throws IOException{
+        final String hash_follow = "Consumer.js/";
+        String jsbody = getJSBody(getJSFile(body, hash_follow));
+        Pattern p1 = Pattern.compile("s=([a-f0-9]{32})\",l=1");
+        Matcher m1 = p1.matcher(body);
+        if (m1.find()) {
+            return m1.group(1);  // The matched substring
+        }
+    }
+
+    protected String getJSBody(String url) throws IOException{
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Response response = executeHttpRequest(request);
+        return response.body().string();
+    }
+
+    protected String getJSFile(String body, String jsfile) throws IOException{
+        String file = null;
+        Pattern p1 = Pattern.compile(jsfile+".js/([a-f0-9]{12})");
+        Matcher m1 = p1.matcher(body);
+        if (m1.find()) {
+            this.rhxgis =m1.group(1);  // The matched substring
+            file = Endpoint.BASE_URL+Endpoint.BASE_STATIC+hash_follow+m1.group(1)+".js";
+            System.out.println("file: "+file);
+        }
+        return file;
     }
 
     protected Request withCsrfToken(Request request) {
@@ -71,17 +102,12 @@ public class Instagram implements AuthenticatedInsta {
     private void getRhxGis(Response response) throws IOException {
         String body = response.body().string();
         Pattern p1 = Pattern.compile("\"rhx_gis\":\"([a-f0-9]{32})\"");
-        Pattern p2 = Pattern.compile("query_hash=([a-f0-9]{32})");
         Matcher m1 = p1.matcher(body);
         if (m1.find()) {
             this.rhxgis =m1.group(1);  // The matched substring
             System.out.println("rhxgis: "+this.rhxgis);
         }
-        Matcher m2 = p2.matcher(body);
-        if (m2.find()) {
-            this.queryhash =m2.group(1);  // The matched substring
-            System.out.println("query_hash: "+this.queryhash);
-        }
+        this.queryhash = getHashFollows(body);
     }
 
     public void login(String username, String password) throws IOException {
