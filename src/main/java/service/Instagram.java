@@ -52,6 +52,7 @@ public class Instagram implements AuthenticatedInsta {
         if (m1.find()) {
             return m1.group(1);  // The matched substring
         }
+        return null;
     }
 
     protected String getJSBody(String url) throws IOException{
@@ -68,7 +69,7 @@ public class Instagram implements AuthenticatedInsta {
         Matcher m1 = p1.matcher(body);
         if (m1.find()) {
             this.rhxgis =m1.group(1);  // The matched substring
-            file = Endpoint.BASE_URL+Endpoint.BASE_STATIC+hash_follow+m1.group(1)+".js";
+            file = Endpoint.BASE_URL+Endpoint.BASE_STATIC+jsfile+m1.group(1)+".js";
             System.out.println("file: "+file);
         }
         return file;
