@@ -72,6 +72,15 @@ public class InstagramService{
         }
     }
 
+    public String getFollowers(long id, boolean hasNext, String cursor){
+        try {
+            return instagram.getFollowers(id, new PageInfo(hasNext,cursor));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "{\"status\":\"NOK\"}";
+        }
+    }
+
     public Account getAccountByUsername(String username) throws IOException {
         return instagram.getAccountByUsername(username);
     }

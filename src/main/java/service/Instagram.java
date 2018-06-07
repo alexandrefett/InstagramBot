@@ -37,7 +37,8 @@ public class Instagram implements AuthenticatedInsta {
     protected Mapper2 mapper;
     protected DelayHandler delayHandler;
     private String rhxgis;
-    private String queryhash;
+    private String hash_follows;
+    private String hash_followers;
 
 
     public Instagram(OkHttpClient httpClient) {
@@ -56,11 +57,17 @@ public class Instagram implements AuthenticatedInsta {
 
         if(url!=null) {
             String jsbody = getJSBody(url);
-            Pattern p1 = Pattern.compile("s=\"([a-f0-9]{32})\",l=1");
+            Pattern p1 = Pattern.compile("s=\"([a-f0-9]{32})\"");
             Matcher m1 = p1.matcher(jsbody);
             if (m1.find()) {
                 System.out.println("---------10");
-                this.queryhash =  m1.group(1);  // The matched substring
+                this.hash_follows =  m1.group(1);  // The matched substring
+            }
+
+            Pattern p2 = Pattern.compile("u=\"([a-f0-9]{32})\"");
+            Matcher m2 = p1.matcher(jsbody);
+            if (m2.find()) {
+                this.hash_followers =  m2.group(1);  // The matched substring
             }
         }
     }
@@ -310,15 +317,31 @@ public class Instagram implements AuthenticatedInsta {
 
     public String getFollows(long userId, PageInfo pageInfo) throws IOException {
 
-        System.out.println("query_hash: "+this.queryhash);
+        System.out.println("hash_follow: "+hash_follows);
+        System.out.println("rhxgis: "+rhxgis);
 
         Request request = new Request.Builder()
-                .url(Endpoint.getFollowsLinkVariables(this.queryhash, userId, 50, pageInfo.getEndCursor()))
+                .url(Endpoint.getFollowsLinkVariables(hash_follows, userId, 50, pageInfo.getEndCursor()))
                 .header(Endpoint.REFERER, Endpoint.BASE_URL + "/")
                 .build();
 
         Response response = executeHttpRequest(request);
-        //InputStream jsonStream = response.body().byteStream();
+        String jsonStream = response.body().string();
+
+        return jsonStream;
+    }
+
+    public String getFollowers(long userId, PageInfo pageInfo) throws IOException {
+
+        System.out.println("hash_followers: "+hash_followers);
+        System.out.println("rhxgis: "+rhxgis);
+
+        Request request = new Request.Builder()
+                .url(Endpoint.getFollowersLinkVariables(hash_followers, userId, 50, pageInfo.getEndCursor()))
+                .header(Endpoint.REFERER, Endpoint.BASE_URL + "/")
+                .build();
+
+        Response response = executeHttpRequest(request);
         String jsonStream = response.body().string();
 
         return jsonStream;

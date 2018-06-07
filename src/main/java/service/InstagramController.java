@@ -82,6 +82,14 @@ public class InstagramController {
                return instagram.getFollows(id, hasNext, cursor);
     }
 
+    @RequestMapping(API_CONTEXT+"/followers")
+    public String _getfollowers(
+            @RequestParam(value="id") long id,
+            @RequestParam(value="hasNext") boolean hasNext,
+            @RequestParam(value="cursor") String cursor) {
+        return instagram.getFollowers(id, hasNext, cursor);
+    }
+
     @RequestMapping(value = API_CONTEXT+"/register", method = RequestMethod.POST)
     public ResponseEntity<Profile> _postRegister(@RequestBody Profile user) {
         if (user != null) {
