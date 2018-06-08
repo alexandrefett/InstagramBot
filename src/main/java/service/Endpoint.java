@@ -23,7 +23,7 @@ public class Endpoint {
     public static final String MEDIA_COMMENTS_ADD = "https://www.instagram.com/web/comments/{{mediaId}}/add/";
     public static final String MEDIA_COMMENTS_DELETE = "https://www.instagram.com/web/comments/{{mediaId}}/delete/{{commentId}}/";
     public static final String LIKES_BY_SHORTCODE = "https://www.instagram.com/graphql/query/?query_id=17864450716183058&variables={\"shortcode\":\"{{shortcode}}\",\"first\":{{count}},\"after\":\"{{after}}\"}";
-    public static final String FOLLOWS_URL = "https://www.instagram.com/graphql/query/?query_hash={{queryhash}}&variables=%7B%22id%22%3A{{userId}}%2C%22first%22%3A{{count}}%2C%22after%22%3A%22{{endCursor}}%22%7D";
+    public static final String FOLLOWS_URL = "https://www.instagram.com/graphql/query/?query_hash={{queryhash}}&variables=%7B%22id%22%3A\"{{userId}}\"%2C%22first%22%3A{{count}}%2C%22after%22%3A%22{{endCursor}}%22%7D";
     public static final String FOLLOWERS_URL = "https://www.instagram.com/graphql/query/?query_hash={{queryhash}}&variables=%7B%22id%22%3A{{userId}}%2C%22first%22%3A{{count}}%2C%22after%22%3A%22{{endCursor}}%22%7D";
     public static final String FOLLOW_ACCOUNT = "https://www.instagram.com/web/friendships/{{userId}}/follow/";
     public static final String UNFOLLOW_ACCOUNT = "https://www.instagram.com/web/friendships/{{userId}}/unfollow/";
@@ -148,9 +148,7 @@ public class Endpoint {
     }
 
     public static String getFollowsLinkVariables(String qhash, long userId, int count, String endCursor) {
-        System.out.println(QUERY_HASH);
-        System.out.println(qhash);
-        System.out.println(FOLLOWS_URL);
+        System.out.println("query_hash"+qhash);
         return FOLLOWS_URL
                 .replace(QUERY_HASH, qhash)
                 .replace(USER_ID, String.valueOf(userId))

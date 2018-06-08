@@ -54,20 +54,22 @@ public class Instagram implements AuthenticatedInsta {
     private void getHashFollows(String body) throws IOException{
         final String hash_follow = "Consumer.js/";
         String url = getJSFile(body, hash_follow);
-
+        System.out.println(url);
         if(url!=null) {
             String jsbody = getJSBody(url);
-            Pattern p1 = Pattern.compile("s=\"([a-f0-9]{32})\"");
+            System.out.println(jsbody);
+            Pattern p1 = Pattern.compile("s=\"([a-f0-9]{32})\",l=1");
             Matcher m1 = p1.matcher(jsbody);
             if (m1.find()) {
-                System.out.println("---------10");
                 this.hash_follows =  m1.group(1);  // The matched substring
+                System.out.println("s="+hash_follows);
             }
 
-            Pattern p2 = Pattern.compile("u=\"([a-f0-9]{32})\"");
-            Matcher m2 = p1.matcher(jsbody);
+            Pattern p2 = Pattern.compile("u=\"([a-f0-9]{32})\",");
+            Matcher m2 = p2.matcher(jsbody);
             if (m2.find()) {
                 this.hash_followers =  m2.group(1);  // The matched substring
+                System.out.println("u="+hash_followers);
             }
         }
     }
@@ -111,6 +113,7 @@ public class Instagram implements AuthenticatedInsta {
 
         Response response = executeHttpRequest(request);
         String body = response.body().string();
+        getHashFollows(body);
         getRhxGis(body);
 //        try (ResponseBody body = response.body()){
             //release connection
