@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpSession;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -45,13 +44,12 @@ public class InstagramController {
     }
 
     @RequestMapping(value = API_CONTEXT+"/login", method = RequestMethod.POST)
-    public ResponseEntity<Account> _login(@RequestBody Profile user) {
+    public ResponseEntity<Account> _login(@RequestBody String token) {
         Account account = null;
         try {
             instagram.basePage();
-            instagram.login(user.getUsername(), user.getPassword());
+            account = instagram.login(token);
             instagram.basePage();
-            account = instagram.getAccountByUsername(user.getUsername());
         } catch (IOException e) {
             e.printStackTrace();
         }

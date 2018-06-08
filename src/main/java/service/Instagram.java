@@ -2,6 +2,7 @@ package service;
 
 import com.fett.mapper.Mapper2;
 import com.fett.mapper.ModelMapper2;
+import com.fett.model.Profile;
 import com.fett.model.Search;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;

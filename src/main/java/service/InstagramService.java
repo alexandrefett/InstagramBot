@@ -52,10 +52,24 @@ public class InstagramService{
         instagram.basePage();
     }
 
-    public void login(String username, String password) throws IOException{
-        instagram.login(username,password);
-        if(account==null)
-            account = getAccountByUsername(username);
+    public Account login(String token) throws IOException{
+        Account account = null;
+        try {
+            ApiFuture<DocumentSnapshot> doc = db.collection("profile").document(token).get();
+            if(doc.get().exists()){
+                Profile profile = doc.get().toObject(Profile.class);
+                instagram.login(profile.getUsername(),profile.getPassword());
+                if(account==null) {
+                    this.account = getAccountByUsername(profile.getUsername());
+                    return account;
+                }
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return account;
     }
 
     public Account getAccountById(long id) throws IOException {
