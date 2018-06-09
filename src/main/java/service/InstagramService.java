@@ -7,6 +7,7 @@ import com.fett.model.Profile;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
+import com.google.gson.Gson;
 import me.postaddict.instagram.scraper.cookie.CookieHashSet;
 import me.postaddict.instagram.scraper.cookie.DefaultCookieJar;
 import me.postaddict.instagram.scraper.interceptor.UserAgentInterceptor;
@@ -56,7 +57,7 @@ public class InstagramService{
         instagram.basePageHash();
     }
 
-    public Account login(String token){
+    public Account login(String token) throws IOException{
         Account account = null;
         try {
             ApiFuture<DocumentSnapshot> doc = db.collection("profile").document(token).get();
@@ -83,14 +84,23 @@ public class InstagramService{
         } catch (IOException e) {
             System.out.println("IOException");
             System.out.println(e.getMessage());
+            Map<String, Object> map = new Gson().fromJson(e.getMessage(), Map.class);
+            //{"message": "checkpoint_required", "checkpoint_url": "/challenge/8537375/a3CNTcpGhm/", "lock": false, "status": "fail"}
+            String message = (String)map.get("message");
+            if(message.equals("checkpoint_required")){
+                solveChalenge((String)map.get("checkpoint_url"));
+            }
         }
         return account;
+    }
+
+    private void solveChalenge(String checkpoint_url)  throws IOException {
+        instagram.solveChallenge(checkpoint_url);
     }
 
     public Account getAccountById(long id) throws IOException {
         return instagram.getAccountById(id);
     }
-
 
     public String getFollows(long id, boolean hasNext, String cursor){
         try {

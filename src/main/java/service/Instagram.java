@@ -163,9 +163,29 @@ public class Instagram implements AuthenticatedInsta {
         String body = response.body().string();
         System.out.println(body);
         //try(InputStream jsonStream = response.body().byteStream()) {
-         //   if(!mapper.isAuthenticated(jsonStream)){
-          //      throw new InstagramAuthException("Credentials rejected by instagram");
-           // }
+        //   if(!mapper.isAuthenticated(jsonStream)){
+        //      throw new InstagramAuthException("Credentials rejected by instagram");
+        // }
+        //}
+    }
+    public void solveChallenge(String challenge) throws IOException {
+        RequestBody formBody = new FormBody.Builder()
+                .add("choice", "0")
+                .build();
+
+        Request request = new Request.Builder()
+                .url(Endpoint.BASE_URL+challenge)
+                .header(Endpoint.REFERER, Endpoint.BASE_URL + "/")
+                .post(formBody)
+                .build();
+
+        Response response = executeHttpRequest(withCsrfToken(request));
+        String body = response.body().string();
+        System.out.println(body);
+        //try(InputStream jsonStream = response.body().byteStream()) {
+        //   if(!mapper.isAuthenticated(jsonStream)){
+        //      throw new InstagramAuthException("Credentials rejected by instagram");
+        // }
         //}
     }
 
