@@ -56,8 +56,13 @@ public class InstagramService{
         Account account = null;
         try {
             ApiFuture<DocumentSnapshot> doc = db.collection("profile").document(token).get();
-            if(doc.get().exists()){
-                Profile profile = doc.get().toObject(Profile.class);
+            DocumentSnapshot snap = doc.get();
+
+            if(snap.exists()){
+                Profile profile = snap.toObject(Profile.class);
+                System.out.println(profile.getUsername());
+                System.out.println(profile.getPassword());
+
                 instagram.login(profile.getUsername(),profile.getPassword());
                 if(account==null) {
                     this.account = getAccountByUsername(profile.getUsername());

@@ -18,6 +18,8 @@ public class ErrorInterceptor implements Interceptor {
         if (code == 200) {
             return response;
         } else {
+            String body = response.body().string();
+            System.out.println(body);
             response.body().close();
             switch(code) {
                 case 401:
@@ -26,6 +28,8 @@ public class ErrorInterceptor implements Interceptor {
                 default:
                     //Gson g = new Gson();
                     //MessageResult s = g.fromJson(response.body().string(), MessageResult.class);
+                    System.out.println(code);
+                    System.out.println(code);
                     throw new InstagramException("Response code is not equal 200. Something went wrong. Please report issue.");
                 case 403:
                     throw new InstagramAuthException("Access denied");

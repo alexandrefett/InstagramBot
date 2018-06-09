@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class InstagramController {
@@ -44,11 +45,12 @@ public class InstagramController {
     }
 
     @RequestMapping(value = API_CONTEXT+"/login", method = RequestMethod.POST)
-    public ResponseEntity<Account> _login(@RequestBody String token) {
+    public ResponseEntity<Account> _login(@RequestBody Map token) {
+        String _token = (String)token.get("token");
         Account account = null;
         try {
             instagram.basePage();
-            account = instagram.login(token);
+            account = instagram.login(_token);
             instagram.basePage();
         } catch (IOException e) {
             e.printStackTrace();
