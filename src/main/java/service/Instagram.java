@@ -52,6 +52,7 @@ public class Instagram implements AuthenticatedInsta {
         this.delayHandler = defaultDelayHandler;
     }
 
+
     private void getHashFollows(String body) throws IOException{
         final String hash_follow = "Consumer.js/";
         String url = getJSFile(body, hash_follow);
@@ -114,10 +115,22 @@ public class Instagram implements AuthenticatedInsta {
 
         Response response = executeHttpRequest(request);
         String body = response.body().string();
+        getRhxGis(body);
+//        try (ResponseBody body = response.body()){
+        //release connection
+//        }
+    }
+    public void basePageHash() throws IOException {
+        Request request = new Request.Builder()
+                .url(Endpoint.BASE_URL)
+                .build();
+
+        Response response = executeHttpRequest(request);
+        String body = response.body().string();
         getHashFollows(body);
         getRhxGis(body);
 //        try (ResponseBody body = response.body()){
-            //release connection
+        //release connection
 //        }
     }
 
