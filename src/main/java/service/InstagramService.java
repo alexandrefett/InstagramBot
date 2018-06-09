@@ -52,7 +52,7 @@ public class InstagramService{
         instagram.basePage();
     }
 
-    public Account login(String token) throws IOException{
+    public Account login(String token){
         Account account = null;
         try {
             ApiFuture<DocumentSnapshot> doc = db.collection("profile").document(token).get();
@@ -76,6 +76,9 @@ public class InstagramService{
             System.out.println("ExecutionException");
             System.out.println(e.getMessage());
 //            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("IOException");
+            System.out.println(e.getMessage());
         }
         return account;
     }
