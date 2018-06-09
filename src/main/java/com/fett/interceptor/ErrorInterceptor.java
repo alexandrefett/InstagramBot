@@ -19,18 +19,13 @@ public class ErrorInterceptor implements Interceptor {
             return response;
         } else {
             String body = response.body().string();
-            System.out.println(body);
             response.body().close();
             switch(code) {
                 case 401:
                     throw new InstagramAuthException("Unauthorized");
                 case 402:
                 default:
-                    //Gson g = new Gson();
-                    //MessageResult s = g.fromJson(response.body().string(), MessageResult.class);
-                    System.out.println(code);
-                    System.out.println(code);
-                    throw new InstagramException("Response code is not equal 200. Something went wrong. Please report issue.");
+                    throw new InstagramException(body);// Return string json (checkpoint_required)
                 case 403:
                     throw new InstagramAuthException("Access denied");
                 case 404:

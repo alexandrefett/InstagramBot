@@ -41,7 +41,6 @@ public class InstagramController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     @RequestMapping(value = API_CONTEXT+"/login", method = RequestMethod.POST)

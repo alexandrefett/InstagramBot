@@ -70,9 +70,12 @@ public class InstagramService{
                 }
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("InterruptedException");
+            System.out.println(e.getMessage());
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            System.out.println("ExecutionException");
+            System.out.println(e.getMessage());
+//            e.printStackTrace();
         }
         return account;
     }
