@@ -35,12 +35,14 @@ public class StatsService {
         try {
             List<Profile> list = getProfiles();
             for(Profile p:list) {
-                Account account = getAccount(p.getUsername(), p.getPassword());
-                saveStats(p, account);
+                try {
+                    Account account = getAccount(p.getUsername(), p.getPassword());
+                    saveStats(p, account);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        }  catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
@@ -75,15 +77,17 @@ public class StatsService {
     }
 
     private void saveStats(Profile profile, Account account){
+        System.out.println(profile.toMap());
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("date", Calendar.getInstance().getTimeInMillis());
         map.put("follows", account.getFollows());
         map.put("followers", account.getFollowedBy());
+
         FirestoreClient.getFirestore()
                 .collection("users")
                 .document(profile.getUid())
                 .collection("history")
-                .add(map);
+                .document().set(map);
     }
 }
 

@@ -15,7 +15,7 @@ public class Profile {
         return uid;
     }
 
-    public void setUid(String id) {
+    public void setUid(String uid) {
         this.uid = uid;
     }
 
@@ -40,7 +40,6 @@ public class Profile {
         map.put("uid", uid);
         map.put("username", username);
         map.put("password", password);
-
         return map;
     }
 }
