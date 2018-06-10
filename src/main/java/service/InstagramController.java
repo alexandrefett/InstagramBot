@@ -44,17 +44,17 @@ public class InstagramController {
     }
 
     @RequestMapping(value = API_CONTEXT+"/login", method = RequestMethod.POST)
-    public ResponseEntity<Account> _login(@RequestBody Map token) {
+    public Account _login(@RequestBody Map token) {
         String _token = (String)token.get("token");
         Account account = null;
         try {
             instagram.basePageHash();
-            account = instagram.login(_token);
-            instagram.basePage();
+            return instagram.login(_token);
+            //instagram.basePage();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new ResponseEntity<Account>(account, HttpStatus.OK);
+        return account;
     }
 
     @RequestMapping(API_CONTEXT+"/account")

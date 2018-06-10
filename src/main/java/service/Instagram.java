@@ -143,6 +143,33 @@ public class Instagram implements AuthenticatedInsta {
         }
     }
 
+    public String login(String username, String password, String extra) throws IOException {
+        if (username == null || password == null) {
+            throw new InstagramAuthException("Specify username and password");
+        }
+
+        RequestBody formBody = new FormBody.Builder()
+                .add("username", username)
+                .add("password", password)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(Endpoint.LOGIN_URL)
+                .header(Endpoint.REFERER, Endpoint.BASE_URL + "/")
+                .post(formBody)
+                .build();
+
+        Response response = executeHttpRequest(withCsrfToken(request));
+        String body = response.body().string();
+        System.out.println(body);
+        return body;
+        //try(InputStream jsonStream = response.body().byteStream()) {
+        //   if(!mapper.isAuthenticated(jsonStream)){
+        //      throw new InstagramAuthException("Credentials rejected by instagram");
+        // }
+        //}
+    }
+
     public void login(String username, String password) throws IOException {
         if (username == null || password == null) {
             throw new InstagramAuthException("Specify username and password");
@@ -168,13 +195,14 @@ public class Instagram implements AuthenticatedInsta {
         // }
         //}
     }
+
     public void solveChallenge(String challenge) throws IOException {
         RequestBody formBody = new FormBody.Builder()
                 .add("choice", "0")
                 .build();
 
         Request request = new Request.Builder()
-                .url(Endpoint.BASE_URL+challenge)
+                .url(Endpoint.BASE_URL+"/challenge/")
                 .header(Endpoint.REFERER, Endpoint.BASE_URL + "/")
                 .post(formBody)
                 .build();

@@ -58,21 +58,20 @@ public class InstagramService{
     }
 
     public Account login(String token) throws IOException{
-        Account account = null;
         try {
             ApiFuture<DocumentSnapshot> doc = db.collection("profile").document(token).get();
             DocumentSnapshot snap = doc.get();
 
             if(snap.exists()){
                 Profile profile = snap.toObject(Profile.class);
-                System.out.println(profile.getUsername());
-                System.out.println(profile.getPassword());
 
-                instagram.login(profile.getUsername(),profile.getPassword());
-                if(account==null) {
-                    this.account = getAccountByUsername(profile.getUsername());
-                    return account;
-                }
+                String body = instagram.login(profile.getUsername(),profile.getPassword(),null);
+                Map<String, Object> map = new Gson().fromJson(body, Map.class);
+                System.out.println(map.toString());
+                boolean auth = (Boolean)map.get("authenticated");
+                if(auth)
+                    return getAccountByUsername(profile.getUsername());
+                //System.out.println(account.getUsername());
             }
         } catch (InterruptedException e) {
             System.out.println("InterruptedException");
@@ -91,7 +90,7 @@ public class InstagramService{
                 solveChalenge((String)map.get("checkpoint_url"));
             }
         }
-        return account;
+        return null;
     }
 
     private void solveChalenge(String checkpoint_url)  throws IOException {
