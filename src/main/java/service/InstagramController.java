@@ -22,6 +22,7 @@ import java.util.Map;
 public class InstagramController {
 
     private static final String API_CONTEXT = "/api/v1";
+    private StatsService stats;
 
     @Autowired
     private InstagramService instagram;
@@ -36,6 +37,8 @@ public class InstagramController {
                     .setDatabaseUrl("https://instamanager-908a3.firebaseio.com")
                     .build();
             FirebaseApp.initializeApp(options);
+            stats = new StatsService();
+            stats.startStsts();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -98,8 +101,8 @@ public class InstagramController {
     }
 
     @RequestMapping(API_CONTEXT+"/follow")
-    public StandardResponse _doFollow(@RequestParam(value="username") String username) {
-        return instagram.follow(username);
+    public void _doFollow(@RequestParam(value="username") String username) {
+        instagram.follow(username);
     }
 
     @RequestMapping(API_CONTEXT+"/unfollow")

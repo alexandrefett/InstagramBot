@@ -14,6 +14,7 @@ import me.postaddict.instagram.scraper.interceptor.UserAgentInterceptor;
 import me.postaddict.instagram.scraper.interceptor.UserAgents;
 import me.postaddict.instagram.scraper.model.Account;
 import me.postaddict.instagram.scraper.model.PageInfo;
+import me.postaddict.instagram.scraper.model.PageObject;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,10 @@ public class InstagramService{
 
     private Firestore db;
     private Instagram instagram;
+    private Profile profile;
     private Account account;
+
+
 
     @Autowired
     public InstagramService() {
@@ -49,6 +53,7 @@ public class InstagramService{
         this.instagram = new Instagram(httpClient);
     }
 
+
     public void basePage() throws IOException{
         instagram.basePage();
     }
@@ -63,8 +68,7 @@ public class InstagramService{
             DocumentSnapshot snap = doc.get();
 
             if(snap.exists()){
-                Profile profile = snap.toObject(Profile.class);
-
+                this.profile = snap.toObject(Profile.class);
                 String body = instagram.login(profile.getUsername(),profile.getPassword(),null);
                 Map<String, Object> map = new Gson().fromJson(body, Map.class);
                 System.out.println(map.toString());
@@ -123,11 +127,12 @@ public class InstagramService{
         return instagram.getAccountByUsername(username);
     }
 
-    public StandardResponse follow(String username){
+    public void follow(String username){
+
         try {
             final Account a = getAccountByUsername(username);
-            new Thread() {
 
+            new Thread() {
                 @Override
                 public void run() {
                     try {
@@ -162,13 +167,64 @@ public class InstagramService{
             }.start();
         } catch (IOException e) {
             e.printStackTrace();
-            return new StandardResponse(StatusResponse.ERROR, e.getMessage());
         }
-        return new StandardResponse(StatusResponse.SUCCESS, "Follow thread started");
-
     }
+
+    private List<Long> getListRequested() throws ExecutionException, InterruptedException {
+        List<Long> list = new ArrayList<Long>();
+        ApiFuture<QuerySnapshot> query = FirestoreClient.getFirestore()
+                .collection("users")
+                .document(profile.getUid())
+                .collection("requested").get();
+        QuerySnapshot snap = query.get();
+        List<QueryDocumentSnapshot> documents = snap.getDocuments();
+        for (DocumentSnapshot document : documents) {
+            list.add(document.toObject(Account.class).getId());
+        }
+        return list;
+    }
+
+    private List<Long> getListToFollow() throws ExecutionException, InterruptedException, IOException {
+        List<Long> list = new ArrayList<Long>();
+        ApiFuture<QuerySnapshot> query = FirestoreClient.getFirestore()
+                .collection("users")
+                .document(profile.getUid())
+                .collection("requested").get();
+        QuerySnapshot snap = query.get();
+        List<QueryDocumentSnapshot> documents = snap.getDocuments();
+
+        for (DocumentSnapshot document : documents) {
+            Account account = document.toObject(Account.class);
+            PageObject<Account> page = instagram.getFollowers(account.getId(), 5);
+            page.getNodes().forEach((value)->{
+                list.add(value.getId());
+            });
+        }
+        return list;
+    }
+
+    private void saveStats(){
+        if(profile!=null) {
+            try {
+                account = instagram.getAccountByUsername(profile.getUsername());
+
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put("date", Calendar.getInstance().getTimeInMillis());
+                map.put("follows", account.getFollows());
+                map.put("followers", account.getFollowedBy());
+                FirestoreClient.getFirestore()
+                        .collection("users")
+                        .document(profile.getUid())
+                        .collection("history")
+                        .add(map);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public Profile userRegister(Profile user){
-        ApiFuture<com.google.firestore.v1beta1.WriteResult> result = db.collection("profile").document(user.getUid()).set(user.toMap());
+        ApiFuture<WriteResult> result = db.collection("profile").document(user.getUid()).set(user.toMap());
         return user;
     }
 
