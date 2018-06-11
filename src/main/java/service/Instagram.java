@@ -2,8 +2,6 @@ package service;
 
 import com.fett.mapper.Mapper2;
 import com.fett.mapper.ModelMapper2;
-import com.fett.model.Profile;
-import com.fett.model.Search;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import me.postaddict.instagram.scraper.AuthenticatedInsta;
@@ -26,6 +24,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,7 +39,6 @@ public class Instagram implements AuthenticatedInsta {
     private String rhxgis;
     private String hash_follows;
     private String hash_followers;
-
 
     public Instagram(OkHttpClient httpClient) {
         this(httpClient, new ModelMapper2(), new DefaultDelayHandler());
@@ -98,6 +96,7 @@ public class Instagram implements AuthenticatedInsta {
     protected Request withCsrfToken(Request request) {
         List<Cookie> cookies = httpClient.cookieJar()
                 .loadForRequest(request.url());
+        saveCookie(123, cookies);
         cookies.removeIf(cookie -> !cookie.name().equals("csrftoken"));
         if (!cookies.isEmpty()) {
             Cookie cookie = cookies.get(0);
@@ -499,6 +498,12 @@ public class Instagram implements AuthenticatedInsta {
         if(tag==null || tag.isEmpty() || tag.startsWith("#")){
             throw new IllegalArgumentException("Please provide non empty tag name that not starts with #");
         }
+    }
+
+    public void saveCookie(long id, List<Cookie> cookies) {
+        String iid = String.valueOf(id);
+        JsonElement map = new Gson().toJsonTree(cookies);
+        System.out.println("MAP:" + map);
     }
 }
 

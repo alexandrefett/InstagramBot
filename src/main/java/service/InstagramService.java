@@ -35,8 +35,6 @@ public class InstagramService{
     private Profile profile;
     private Account account;
 
-
-
     @Autowired
     public InstagramService() {
 
@@ -73,8 +71,10 @@ public class InstagramService{
                 Map<String, Object> map = new Gson().fromJson(body, Map.class);
                 System.out.println(map.toString());
                 boolean auth = (Boolean)map.get("authenticated");
-                if(auth)
-                    return getAccountByUsername(profile.getUsername());
+                if(auth) {
+                    Account a = getAccountByUsername(profile.getUsername());
+                    return a;
+                }
                 //System.out.println(account.getUsername());
             }
         } catch (InterruptedException e) {
@@ -88,7 +88,6 @@ public class InstagramService{
             System.out.println("IOException");
             System.out.println(e.getMessage());
             Map<String, Object> map = new Gson().fromJson(e.getMessage(), Map.class);
-            //{"message": "checkpoint_required", "checkpoint_url": "/challenge/8537375/a3CNTcpGhm/", "lock": false, "status": "fail"}
             String message = (String)map.get("message");
             if(message.equals("checkpoint_required")){
                 solveChalenge((String)map.get("checkpoint_url"));
