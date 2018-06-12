@@ -37,8 +37,8 @@ public class InstagramController {
                     .setDatabaseUrl("https://instamanager-908a3.firebaseio.com")
                     .build();
             FirebaseApp.initializeApp(options);
-            stats = new StatsService();
-            stats.startStsts();
+            //stats = new StatsService();
+            //stats.startStsts();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -51,8 +51,10 @@ public class InstagramController {
         String _token = (String)token.get("token");
         Account account = null;
         try {
-            instagram.basePageHash(_token);
-            return instagram.login(_token);
+            if(!instagram.basePageHash(_token))
+                return instagram.login(_token);
+            else
+                return instagram.getAccountByToken(_token);
             //instagram.basePage();
         } catch (IOException e) {
             e.printStackTrace();

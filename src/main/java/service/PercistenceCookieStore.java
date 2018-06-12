@@ -102,4 +102,7 @@ public class PercistenceCookieStore  implements CookieStore, Runnable {
         return cookie.getName() + cookie.getDomain();
     }
 
+    public void save(){
+        new Thread(this).run();
+    }
 }

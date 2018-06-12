@@ -54,22 +54,18 @@ public class Instagram implements AuthenticatedInsta {
     private void getHashFollows(String body) throws IOException{
         final String hash_follow = "Consumer.js/";
         String url = getJSFile(body, hash_follow);
-        System.out.println(url);
         if(url!=null) {
             String jsbody = getJSBody(url);
-            System.out.println(jsbody);
             Pattern p1 = Pattern.compile("s=\"([a-f0-9]{32})\",l=1");
             Matcher m1 = p1.matcher(jsbody);
             if (m1.find()) {
                 this.hash_follows =  m1.group(1);  // The matched substring
-                System.out.println("s="+hash_follows);
             }
 
             Pattern p2 = Pattern.compile("u=\"([a-f0-9]{32})\",");
             Matcher m2 = p2.matcher(jsbody);
             if (m2.find()) {
                 this.hash_followers =  m2.group(1);  // The matched substring
-                System.out.println("u="+hash_followers);
             }
         }
     }
@@ -118,9 +114,9 @@ public class Instagram implements AuthenticatedInsta {
         //release connection
 //        }
     }
-    public void basePageHash(String _token) throws IOException {
+    public boolean basePageHash(String _token) throws IOException {
+        boolean logged = false;
         this.cookieStore  = new PercistenceCookieStore(_token);
-
         Request request = new Request.Builder()
                 .url(Endpoint.BASE_URL)
                 .build();
@@ -138,16 +134,15 @@ public class Instagram implements AuthenticatedInsta {
                         .path(cookie.getPath())
                         .build();
                 cookie3.add(c);
-                System.out.println("READ--------");
-                System.out.println(c.domain());
-                System.out.println(c.value());
             }
+            logged = true;
             httpClient.cookieJar().saveFromResponse(request.url(), cookie3);
         }
         Response response = executeHttpRequest(request);
         String body = response.body().string();
         getHashFollows(body);
         getRhxGis(body);
+        return logged;
 //        try (ResponseBody body = response.body()){
         //release connection
 //        }
@@ -158,7 +153,6 @@ public class Instagram implements AuthenticatedInsta {
         Matcher m1 = p1.matcher(body);
         if (m1.find()) {
             this.rhxgis =m1.group(1);  // The matched substring
-            System.out.println("rhxgis: "+this.rhxgis);
         }
     }
 
@@ -183,7 +177,6 @@ public class Instagram implements AuthenticatedInsta {
 
 
         String body = response.body().string();
-            System.out.println(body);
             return body;
         //try(InputStream jsonStream = response.body().byteStream()) {
         //   if(!mapper.isAuthenticated(jsonStream)){
@@ -210,7 +203,6 @@ public class Instagram implements AuthenticatedInsta {
 
         Response response = executeHttpRequest(withCsrfToken(request));
         String body = response.body().string();
-        System.out.println(body);
         //try(InputStream jsonStream = response.body().byteStream()) {
         //   if(!mapper.isAuthenticated(jsonStream)){
         //      throw new InstagramAuthException("Credentials rejected by instagram");
@@ -231,7 +223,6 @@ public class Instagram implements AuthenticatedInsta {
 
         Response response = executeHttpRequest(withCsrfToken(request));
         String body = response.body().string();
-        System.out.println(body);
         //try(InputStream jsonStream = response.body().byteStream()) {
         //   if(!mapper.isAuthenticated(jsonStream)){
         //      throw new InstagramAuthException("Credentials rejected by instagram");
@@ -260,7 +251,6 @@ public class Instagram implements AuthenticatedInsta {
         String v = String.join(":", rhxgis, "/"+variables+"/");
         m.update(v.getBytes(),0,v.length());
         String md5 = new BigInteger(1,m.digest()).toString(16);
-        System.out.println("MD5: "+md5);
         return md5;
     }
 
@@ -271,7 +261,6 @@ public class Instagram implements AuthenticatedInsta {
                 .addHeader(Endpoint.X_INSTAGRAM_GIS, genMD5(this.rhxgis, username))
                 .addHeader("X-Requested-with", "XMLHttpRequest")
                 .build();
-        System.out.println("rgis "+rhxgis);
         Response response = executeHttpRequest(request);
 
         List<HttpCookie> cookielist = new ArrayList<HttpCookie>();
@@ -284,11 +273,9 @@ public class Instagram implements AuthenticatedInsta {
             c.setPath(cookie.path());
             c.setSecure(cookie.secure());
             cookielist.add(c);
-            System.out.println("WRITE--------");
-            System.out.println(c.getDomain());
-            System.out.println(c.getValue());
             cookieStore.add(URI.create(Endpoint.BASE_URL), c);
         }
+        cookieStore.save();
 
         try(InputStream jsonStream = response.body().byteStream()) {
             return mapper.mapAccount(jsonStream);
@@ -422,9 +409,6 @@ public class Instagram implements AuthenticatedInsta {
 
     public String getFollows(long userId, PageInfo pageInfo) throws IOException {
 
-        System.out.println("hash_follow: "+hash_follows);
-        System.out.println("rhxgis: "+rhxgis);
-
         Request request = new Request.Builder()
                 .url(Endpoint.getFollowsLinkVariables(hash_follows, userId, 50, pageInfo.getEndCursor()))
                 .header(Endpoint.REFERER, Endpoint.BASE_URL + "/")
@@ -437,9 +421,6 @@ public class Instagram implements AuthenticatedInsta {
     }
 
     public String getFollowers(long userId, PageInfo pageInfo) throws IOException {
-
-        System.out.println("hash_followers: "+hash_followers);
-        System.out.println("rhxgis: "+rhxgis);
 
         Request request = new Request.Builder()
                 .url(Endpoint.getFollowersLinkVariables(hash_followers, userId, 50, pageInfo.getEndCursor()))

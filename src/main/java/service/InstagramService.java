@@ -56,8 +56,8 @@ public class InstagramService{
         instagram.basePage();
     }
 
-    public void basePageHash(String _token) throws IOException{
-        instagram.basePageHash(_token);
+    public boolean basePageHash(String _token) throws IOException{
+        return instagram.basePageHash(_token);
     }
 
     public Account login(String token) throws IOException{
@@ -343,5 +343,21 @@ public class InstagramService{
                 .collection("whitelist")
                 .document(id)
                 .delete();
+    }
+
+    public Account getAccountByToken(String token) throws  IOException{
+        try {
+            ApiFuture<DocumentSnapshot> doc = db.collection("profile").document(token).get();
+            DocumentSnapshot snap = null;
+            snap = doc.get();
+
+        this.profile = snap.toObject(Profile.class);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return instagram.getAccountByUsername(profile.getUsername());
+
     }
 }
