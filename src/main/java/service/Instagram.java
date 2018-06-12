@@ -3,7 +3,6 @@ package service;
 import com.fett.mapper.Mapper2;
 import com.fett.mapper.ModelMapper2;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import me.postaddict.instagram.scraper.AuthenticatedInsta;
 import me.postaddict.instagram.scraper.MediaUtil;
 import me.postaddict.instagram.scraper.exception.InstagramAuthException;
@@ -17,14 +16,14 @@ import okhttp3.*;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.math.BigInteger;
+import java.net.HttpCookie;
+import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +38,7 @@ public class Instagram implements AuthenticatedInsta {
     private String rhxgis;
     private String hash_follows;
     private String hash_followers;
+    private PercistenceCookieStore cookieStore;
 
     public Instagram(OkHttpClient httpClient) {
         this(httpClient, new ModelMapper2(), new DefaultDelayHandler());
@@ -96,7 +96,6 @@ public class Instagram implements AuthenticatedInsta {
     protected Request withCsrfToken(Request request) {
         List<Cookie> cookies = httpClient.cookieJar()
                 .loadForRequest(request.url());
-        saveCookie(123, cookies);
         cookies.removeIf(cookie -> !cookie.name().equals("csrftoken"));
         if (!cookies.isEmpty()) {
             Cookie cookie = cookies.get(0);
@@ -119,11 +118,32 @@ public class Instagram implements AuthenticatedInsta {
         //release connection
 //        }
     }
-    public void basePageHash() throws IOException {
+    public void basePageHash(String _token) throws IOException {
+        this.cookieStore  = new PercistenceCookieStore(_token);
+
         Request request = new Request.Builder()
                 .url(Endpoint.BASE_URL)
                 .build();
 
+        if(cookieStore.getCookies().size()>0) {
+            List<HttpCookie> cookielist = cookieStore.getCookies();
+            List<Cookie> cookie3 = new ArrayList<Cookie>();
+            for (HttpCookie cookie:cookielist) {
+                Cookie c = new Cookie.Builder()
+                        .domain(cookie.getDomain())
+                        .value(cookie.getValue())
+                        .expiresAt(cookie.getMaxAge())
+                        .hostOnlyDomain(cookie.getDomain())
+                        .name(cookie.getName())
+                        .path(cookie.getPath())
+                        .build();
+                cookie3.add(c);
+                System.out.println("READ--------");
+                System.out.println(c.domain());
+                System.out.println(c.value());
+            }
+            httpClient.cookieJar().saveFromResponse(request.url(), cookie3);
+        }
         Response response = executeHttpRequest(request);
         String body = response.body().string();
         getHashFollows(body);
@@ -143,25 +163,28 @@ public class Instagram implements AuthenticatedInsta {
     }
 
     public String login(String username, String password, String extra) throws IOException {
-        if (username == null || password == null) {
-            throw new InstagramAuthException("Specify username and password");
-        }
 
-        RequestBody formBody = new FormBody.Builder()
-                .add("username", username)
-                .add("password", password)
-                .build();
+            if (username == null || password == null) {
+                throw new InstagramAuthException("Specify username and password");
+            }
+            //cookieStore.
+            RequestBody formBody = new FormBody.Builder()
+                    .add("username", username)
+                    .add("password", password)
+                    .build();
 
-        Request request = new Request.Builder()
-                .url(Endpoint.LOGIN_URL)
-                .header(Endpoint.REFERER, Endpoint.BASE_URL + "/")
-                .post(formBody)
-                .build();
+            Request request = new Request.Builder()
+                    .url(Endpoint.LOGIN_URL)
+                    .header(Endpoint.REFERER, Endpoint.BASE_URL + "/")
+                    .post(formBody)
+                    .build();
 
-        Response response = executeHttpRequest(withCsrfToken(request));
+            Response response = executeHttpRequest(withCsrfToken(request));
+
+
         String body = response.body().string();
-        System.out.println(body);
-        return body;
+            System.out.println(body);
+            return body;
         //try(InputStream jsonStream = response.body().byteStream()) {
         //   if(!mapper.isAuthenticated(jsonStream)){
         //      throw new InstagramAuthException("Credentials rejected by instagram");
@@ -250,6 +273,22 @@ public class Instagram implements AuthenticatedInsta {
                 .build();
         System.out.println("rgis "+rhxgis);
         Response response = executeHttpRequest(request);
+
+        List<HttpCookie> cookielist = new ArrayList<HttpCookie>();
+        List<Cookie> cookie3 = httpClient.cookieJar().loadForRequest(request.url());
+        for (Cookie cookie:cookie3) {
+            HttpCookie c = new HttpCookie(cookie.name(),cookie.value());
+            c.setDomain(cookie.domain());
+            c.setHttpOnly(cookie.httpOnly());
+            c.setMaxAge(cookie.expiresAt());
+            c.setPath(cookie.path());
+            c.setSecure(cookie.secure());
+            cookielist.add(c);
+            System.out.println("WRITE--------");
+            System.out.println(c.getDomain());
+            System.out.println(c.getValue());
+            cookieStore.add(URI.create(Endpoint.BASE_URL), c);
+        }
 
         try(InputStream jsonStream = response.body().byteStream()) {
             return mapper.mapAccount(jsonStream);
@@ -498,12 +537,6 @@ public class Instagram implements AuthenticatedInsta {
         if(tag==null || tag.isEmpty() || tag.startsWith("#")){
             throw new IllegalArgumentException("Please provide non empty tag name that not starts with #");
         }
-    }
-
-    public void saveCookie(long id, List<Cookie> cookies) {
-        String iid = String.valueOf(id);
-        JsonElement map = new Gson().toJsonTree(cookies);
-        System.out.println("MAP:" + map);
     }
 }
 

@@ -56,8 +56,8 @@ public class InstagramService{
         instagram.basePage();
     }
 
-    public void basePageHash() throws IOException{
-        instagram.basePageHash();
+    public void basePageHash(String _token) throws IOException{
+        instagram.basePageHash(_token);
     }
 
     public Account login(String token) throws IOException{

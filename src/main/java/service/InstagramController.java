@@ -51,7 +51,7 @@ public class InstagramController {
         String _token = (String)token.get("token");
         Account account = null;
         try {
-            instagram.basePageHash();
+            instagram.basePageHash(_token);
             return instagram.login(_token);
             //instagram.basePage();
         } catch (IOException e) {
